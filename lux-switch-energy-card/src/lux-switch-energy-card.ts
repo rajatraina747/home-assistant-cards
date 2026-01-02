@@ -4,6 +4,8 @@ import { styles } from './styles';
 import { LuxSwitchEnergyCardConfig, PowerSample, ModeItem, ActionConfig } from './types';
 import { localize } from './localize/localize';
 import './components/sparkline';
+import './components/power-flow';
+
 
 @customElement('lux-switch-energy-card')
 export class LuxSwitchEnergyCard extends LitElement {
@@ -694,6 +696,11 @@ export class LuxSwitchEnergyCard extends LitElement {
             ${isUnavailable ? localize('common.unavailable') : isStale ? localize('common.stale') : this.isOn() ? localize('common.on') : localize('common.off')}
           </div>
         </div>
+
+        <lux-power-flow 
+          .active=${this.isOn()} 
+          .power=${power || 0}
+        ></lux-power-flow>
 
         <div class="sparkline-container">
             <lux-sparkline 
