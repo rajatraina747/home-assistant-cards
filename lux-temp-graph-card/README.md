@@ -1,6 +1,13 @@
-# Luxury Temperature Graph Card
-
 A highly polished, glassmorphic temperature graph card with luxury styling for Home Assistant Lovelace dashboards.
+
+✨ **Luxury Features:**
+- **Advanced Glassmorphism**: Stunning blur effects, noise textures, and gradient border accents.
+- **Interactive Graph**: Vertical crosshair and dynamic tooltips that follow your mouse/touch.
+- **Robust Rendering**: Powered by `ResizeObserver` to ensure perfect scaling in any layout or browser.
+- **Trend Indicators**: Smart visual cues showing temperature rise/fall.
+- **Premium Animations**: Pulsing glows and smooth transition effects.
+- **Fully Customizable**: Control everything from accent colors to number of data points.
+- **Secondary Entity Support**: Display humidity or other related sensors alongside the temperature.
 
 ## Installation
 
@@ -57,3 +64,12 @@ glow: true
    ```bash
    npm run watch
    ```
+
+### Local Preview Tool
+This project includes an `index.html` file that allows you to preview and debug the card's visual design locally without needing to restart Home Assistant. Simply open it in a browser and use the provided controls to simulate different states.
+
+## Support
+This is a community-driven project. If you find it useful, feel free to contribute or report issues on GitHub!
+
+## License
+MIT License. See [LICENSE](LICENSE) for details.

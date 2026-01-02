@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build output
+# dist/  <-- Commented out: usually we want to include the bundled file for HACS
+# Keep the built file so people can download and use it directly.
+dist/*.map
+
+# Development
+# index.html remains visible as a demo tool
+
+# Tools
+.DS_Store
+*.log
+.npm/
+
+# TS debris
+*.tsbuildinfo
