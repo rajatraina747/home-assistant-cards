@@ -1,18 +1,30 @@
 .
- |-lux-temp-graph-card
- | |-.gitignore
- | |-dist
- | | |-lux-temp-graph-card.js
- | | |-lux-temp-graph-card.js.map
- | | |-lux-temp-graph-card.d.ts
- | |-index.html
- | |-LICENSE
- | |-package-lock.json
- | |-package.json
- | |-README.md
- | |-rollup.config.js
- | |-src
- | | |-lux-temp-graph-card.ts
- | |-tsconfig.json
- |-.gitignore
- |-structure.txt
+├── lux-switch-energy-card/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── power-flow.ts
+│   │   │   └── sparkline.ts
+│   │   ├── localize/
+│   │   │   └── localize.ts
+│   │   ├── lux-switch-energy-card.ts
+│   │   ├── styles.ts
+│   │   └── types.ts
+│   ├── dist/
+│   │   └── lux-switch-energy-card.js (Production Build)
+│   ├── index.html (Local Preview)
+│   ├── package.json
+│   ├── README.md
+│   ├── tsconfig.json
+│   └── vite.config.ts
+├── lux-temp-graph-card/
+│   ├── src/
+│   │   └── lux-temp-graph-card.ts
+│   ├── dist/
+│   │   └── lux-temp-graph-card.js
+│   ├── index.html
+│   ├── package.json
+│   ├── README.md
+│   ├── rollup.config.js
+│   └── tsconfig.json
+├── .gitignore
+└── structure.txt
