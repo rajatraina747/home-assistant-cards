@@ -16,4 +16,7 @@ dist/*.map
 .npm/
 
 # TS debris
-*.tsbuildinfo
+# Allow critical files ignored by root .gitignore
+!rollup.config.js
+!dist/
+!dist/lux-temp-graph-card.js
