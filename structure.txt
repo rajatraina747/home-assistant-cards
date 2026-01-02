@@ -1,21 +1,28 @@
 .
 ├── lux-switch-energy-card/
+│   ├── CHANGELOG.md
+│   ├── docs/
+│   │   └── images/
+│   │       └── lux_animation_final.png
+│   ├── hacs.json
+│   ├── PROJECT_REPORT.md
+│   ├── README.md
+│   ├── index.html
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── vite.config.ts
 │   ├── src/
 │   │   ├── components/
 │   │   │   ├── power-flow.ts
 │   │   │   └── sparkline.ts
 │   │   ├── localize/
 │   │   │   └── localize.ts
+│   │   ├── config-utils.ts
 │   │   ├── lux-switch-energy-card.ts
 │   │   ├── styles.ts
 │   │   └── types.ts
-│   ├── dist/
-│   │   └── lux-switch-energy-card.js (Production Build)
-│   ├── index.html (Local Preview)
-│   ├── package.json
-│   ├── README.md
-│   ├── tsconfig.json
-│   └── vite.config.ts
+│   └── dist/
+│       └── lux-switch-energy-card.js
 ├── lux-temp-graph-card/
 │   ├── src/
 │   │   └── lux-temp-graph-card.ts
