@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Lux Temp Graph Card Preview</title>
+    <style>
+        :root {
+            color-scheme: dark;
+
+            /* Optional: tweak these to better mirror your HA theme */
+            --bg0: #07040d;
+            --bg1: #120624;
+            --panel: rgba(255, 255, 255, 0.06);
+            --panel-border: rgba(255, 255, 255, 0.10);
+            --text: rgba(255, 255, 255, 0.92);
+            --muted: rgba(255, 255, 255, 0.62);
+            --gold: #d6b25e;
+        }
+
+        body {
+            margin: 0;
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+            background: radial-gradient(1200px 800px at 20% 10%, var(--bg1), var(--bg0));
+            color: var(--text);
+        }
+
+        .wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 18px;
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 980px) {
+            .wrap {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            border-radius: 18px;
+            background: var(--panel);
+            border: 1px solid var(--panel-border);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+            overflow: hidden;
+        }
+
+        .panel .hd {
+            padding: 14px 14px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .title {
+            font-size: 13px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .badge {
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.9);
+            background: linear-gradient(90deg, var(--gold), rgba(214, 178, 94, 0.65));
+            padding: 6px 10px;
+            border-radius: 999px;
+        }
+
+        .panel .bd {
+            padding: 14px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 330px;
+            resize: vertical;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.10);
+            background: rgba(0, 0, 0, 0.28);
+            color: var(--text);
+            padding: 12px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+            font-size: 12.5px;
+            line-height: 1.45;
+            outline: none;
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        button {
+            appearance: none;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text);
+            padding: 10px 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: rgba(255, 255, 255, 0.09);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .hint {
+            margin-top: 10px;
+            color: var(--muted);
+            font-size: 12.5px;
+            line-height: 1.45;
+        }
+
+        .status {
+            margin-top: 10px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.75);
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .stage {
+            padding: 18px;
+        }
+
+        .card-host {
+            display: grid;
+            place-items: start;
+        }
+
+        /* Helps mimic HA card spacing */
+        lux-temp-graph-card {
+            width: min(860px, 100%);
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <!-- LEFT: Controls -->
+        <div class="panel">
+            <div class="hd">
+                <div class="title">Preview Controls</div>
+                <div class="badge">Mock HA</div>
+            </div>
+            <div class="bd">
+                <textarea id="cfg"></textarea>
+                <div class="row">
+                    <button id="apply">Apply config</button>
+                    <button id="toggleSecondary">Toggle secondary</button>
+                    <button id="freeze">Freeze/Resume</button>
+                    <button id="reset">Reset sim</button>
+                </div>
+                <div class="hint">
+                    <div><b>Notes</b></div>
+                    <div>• This loads <code>./dist/lux-temp-graph-card.js</code> (so keep the file there).</div>
+                    <div>• If your card expects HA theme vars, you can add them to <code>:root</code> above.</div>
+                    <div>• Config is JSON. (If you use YAML normally, paste it and I can add a YAML parser later.)</div>
+                    <div>• If the card relies on history WS calls, it should gracefully degrade here.</div>
+                </div>
+                <div class="status" id="status"></div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Render target -->
+        <div class="panel stage">
+            <div class="card-host" id="mount"></div>
+        </div>
+    </div>
+
+    <!-- Load the compiled custom card module -->
+    <script type="module">
+        import "./dist/lux-temp-graph-card.js";
+
+        const elCfg = document.getElementById("cfg");
+        const elStatus = document.getElementById("status");
+        const mount = document.getElementById("mount");
+
+        // ---- Mock entity simulation ----
+        let t = 0;
+        let frozen = false;
+        let showSecondary = true;
+
+        const ENTITY_TEMP = "sensor.lux_preview_temperature";
+        const ENTITY_HUM = "sensor.lux_preview_humidity";
+
+        function clamp(n, lo, hi) { return Math.max(lo, Math.min(hi, n)); }
+
+        function makeState({ entity_id, state, unit, friendly_name }) {
+            return {
+                entity_id,
+                state: String(state),
+                attributes: {
+                    friendly_name,
+                    unit_of_measurement: unit
+                },
+                last_changed: new Date().toISOString(),
+                last_updated: new Date().toISOString()
+            };
+        }
+
+        // Minimal hass mock. Many cards only need hass.states and hass.formatEntityState/value.
+        const hass = {
+            states: {},
+            language: "en",
+            locale: { language: "en", number_format: "decimal_comma", time_format: "24" },
+            // Light helpers
+            formatEntityState(stateObj) {
+                return stateObj?.state ?? "";
+            },
+            formatEntityAttributeValue(stateObj, attr) {
+                return stateObj?.attributes?.[attr] ?? "";
+            }
+        };
+
+        // Seed initial states
+        function seedStates() {
+            t = 0;
+            hass.states[ENTITY_TEMP] = makeState({
+                entity_id: ENTITY_TEMP,
+                state: 21.6,
+                unit: "°C",
+                friendly_name: "Living Room Temperature"
+            });
+
+            hass.states[ENTITY_HUM] = makeState({
+                entity_id: ENTITY_HUM,
+                state: 46,
+                unit: "%",
+                friendly_name: "Living Room Humidity"
+            });
+        }
+
+        seedStates();
+
+        // Update states over time (sine-ish + noise)
+        function tick() {
+            if (!frozen) {
+                t += 1;
+                const base = 21.8 + Math.sin(t / 22) * 1.6 + Math.sin(t / 90) * 0.8;
+                const noise = (Math.random() - 0.5) * 0.25;
+                const temp = clamp(base + noise, 16, 30);
+
+                const humBase = 46 + Math.sin(t / 35) * 6 + (Math.random() - 0.5) * 1.2;
+                const hum = clamp(humBase, 30, 70);
+
+                hass.states[ENTITY_TEMP] = makeState({
+                    entity_id: ENTITY_TEMP,
+                    state: temp.toFixed(1),
+                    unit: "°C",
+                    friendly_name: "Living Room Temperature"
+                });
+
+                hass.states[ENTITY_HUM] = makeState({
+                    entity_id: ENTITY_HUM,
+                    state: Math.round(hum),
+                    unit: "%",
+                    friendly_name: "Living Room Humidity"
+                });
+
+                // Push hass update into the card (re-render trigger)
+                if (card) card.hass = hass;
+            }
+            requestAnimationFrame(() => { });
+        }
+
+        setInterval(tick, 1000);
+
+        // ---- Card mount + config ----
+        let card = null;
+
+        const defaultConfig = {
+            type: "custom:lux-temp-graph-card",
+            entity: ENTITY_TEMP,
+            name: "Indoor",
+            mode: "trend",
+            graph_style: "both",
+            smoothing: true,
+            points: 48,
+            show_stats: true,
+            show_min: true,
+            show_avg: true,
+            show_max: true,
+            stats_lookback_label: "24h",
+            show_axes: false,
+            show_grid: false,
+            animate: true,
+            height: 260,
+            padding: 14,
+            border_radius: 22,
+
+            show_secondary: true,
+            secondary_entity: ENTITY_HUM,
+            secondary_label: "Humidity",
+            secondary_decimals: 0,
+
+            // Theme defaults (adjust freely)
+            glass: true,
+            glass_blur: 14,
+            glass_opacity: 0.08,
+            background_gradient: "radial-gradient(1200px 800px at 20% 10%, #1a0833, #07040d)",
+            panel_color: "rgba(255,255,255,0.06)",
+            accent_gold: "#d6b25e",
+            accent_purple: "#6d28d9",
+            text_primary: "rgba(255,255,255,0.92)",
+            text_muted: "rgba(255,255,255,0.62)",
+            glow: true,
+            glow_strength: 0.65,
+            shadow_strength: 0.35,
+
+            // Threshold examples
+            thresholds: [
+                { below: 18, color: "#4f8cff", label: "Cool" },
+                { above: 24, color: "#f59e0b", label: "Warm" },
+                { above: 27, color: "#ef4444", label: "Hot" }
+            ]
+        };
+
+        elCfg.value = JSON.stringify(defaultConfig, null, 2);
+
+        function setStatus(msg) {
+            elStatus.textContent = msg;
+        }
+
+        function safeParseConfig(raw) {
+            // JSON only for now (simple + dependency-free).
+            // If you want YAML editing, tell me and I’ll add a tiny YAML parser option.
+            return JSON.parse(raw);
+        }
+
+        function mountCard(config) {
+            mount.innerHTML = "";
+
+            // Ensure the custom element exists
+            const tagName = "lux-temp-graph-card";
+            if (!customElements.get(tagName)) {
+                setStatus(
+                    [
+                        "❌ Custom element not registered:",
+                        `- expected: <${tagName}>`,
+                        "",
+                        "Check:",
+                        "- ./dist/lux-temp-graph-card.js is loading",
+                        "- the card registers customElements.define('lux-temp-graph-card', ...)",
+                        "- open DevTools console for module load errors"
+                    ].join("\n")
+                );
+                return;
+            }
+
+            card = document.createElement(tagName);
+            mount.appendChild(card);
+
+            // Apply hass + config
+            card.hass = hass;
+
+            // Many HA cards implement setConfig()
+            if (typeof card.setConfig === "function") {
+                card.setConfig(config);
+            } else {
+                // Fallback: some cards read a config property
+                card.config = config;
+            }
+
+            setStatus(
+                [
+                    "✅ Card mounted",
+                    `entity: ${config.entity}`,
+                    showSecondary ? `secondary: ${config.secondary_entity || "(none)"}` : "secondary: (disabled)",
+                    `mode: ${config.mode || "trend"}`
+                ].join("\n")
+            );
+        }
+
+        // Initial mount
+        try {
+            mountCard(defaultConfig);
+        } catch (e) {
+            console.error(e);
+            setStatus("❌ Mount failed. See console.\n" + String(e?.message || e));
+        }
+
+        // ---- UI Buttons ----
+        document.getElementById("apply").addEventListener("click", () => {
+            try {
+                const cfg = safeParseConfig(elCfg.value);
+
+                // Sync secondary toggle into config so the card can react
+                cfg.show_secondary = showSecondary;
+
+                mountCard(cfg);
+            } catch (e) {
+                console.error(e);
+                setStatus("❌ Config parse/apply error:\n" + String(e?.message || e));
+            }
+        });
+
+        document.getElementById("toggleSecondary").addEventListener("click", () => {
+            showSecondary = !showSecondary;
+            try {
+                const cfg = safeParseConfig(elCfg.value);
+                cfg.show_secondary = showSecondary;
+                if (!showSecondary) {
+                    cfg.secondary_entity = undefined;
+                } else {
+                    cfg.secondary_entity = ENTITY_HUM;
+                }
+                elCfg.value = JSON.stringify(cfg, null, 2);
+                mountCard(cfg);
+            } catch (e) {
+                console.error(e);
+                setStatus("❌ Toggle secondary failed:\n" + String(e?.message || e));
+            }
+        });
+
+        document.getElementById("freeze").addEventListener("click", () => {
+            frozen = !frozen;
+            setStatus((elStatus.textContent || "") + "\n" + (frozen ? "⏸️ Frozen updates" : "▶️ Resumed updates"));
+        });
+
+        document.getElementById("reset").addEventListener("click", () => {
+            seedStates();
+            if (card) card.hass = hass;
+            setStatus((elStatus.textContent || "") + "\n" + "🔄 Simulation reset");
+        });
+    </script>
+</body>
+
+</html>
